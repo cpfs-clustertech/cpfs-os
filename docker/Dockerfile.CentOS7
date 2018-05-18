@@ -1,5 +1,7 @@
 FROM centos:7
-LABEL maintainer cpfs@clustertech.com
+
+LABEL maintainer="cpfs@clustertech.com"
+
 RUN yum install -y epel-release && \
     yum install -y \
       attr \
@@ -16,14 +18,21 @@ RUN yum install -y epel-release && \
       perl-Digest-MD5 \
       rpm-build \
       unzip \
-      wget
-RUN yum -y update && yum clean all && useradd -m builder \
-    && usermod -a -G audio builder
+      wget && \
+    yum -y update && \
+    yum clean all
+
+RUN useradd -m builder && usermod -a -G audio builder
+
 ADD . /home/builder/
+
 RUN chown -R builder.builder /home/builder/
+
 USER builder
+
 RUN cd && \
     ./build_dep
+
 RUN cd && \
     tar czf /tmp/cpfs-os.tar.gz * && \
     mkdir -p rpmbuild/{SPECS,SOURCES} && \

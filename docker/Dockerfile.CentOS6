@@ -1,5 +1,7 @@
 FROM centos:6
-LABEL maintainer cpfs@clustertech.com
+
+LABEL maintainer="cpfs@clustertech.com"
+
 RUN yum install -y epel-release && \
     yum install -y \
       attr \
@@ -16,7 +18,10 @@ RUN yum install -y epel-release && \
       rpm-build \
       unzip \
       wget \
-      zlib-devel
+      zlib-devel && \
+    yum -y update && \
+    yum clean all
+
 RUN cd && mkdir build && cd build && \
     wget https://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.zip/download -O download.zip && \
     unzip download.zip && \
@@ -26,6 +31,7 @@ RUN cd && mkdir build && cd build && \
     echo >> /usr/local/include/boost/fusion/tuple/detail/preprocessed/tuple.hpp && \
     cd ../.. && \
     rm -rf build
+
 RUN cd && mkdir build && cd build && \
     wget https://botan.randombit.net/releases/Botan-1.10.15.tgz && \
     tar xzvf Botan-1.10.15.tgz && \
@@ -35,6 +41,7 @@ RUN cd && mkdir build && cd build && \
     ln -sfT botan-1.10/botan /usr/local/include/botan && \
     cd ../.. && \
     rm -rf build
+
 RUN cd && mkdir build && cd build && \
     wget https://github.com/libfuse/libfuse/archive/fuse_2_9_5.zip && \
     unzip fuse_2_9_5.zip && \
@@ -44,13 +51,18 @@ RUN cd && mkdir build && cd build && \
     make install && \
     cd ../.. && \
     rm -rf build
-RUN yum -y update && yum clean all && useradd -m builder \
-    && usermod -a -G audio builder
+
+RUN useradd -m builder && usermod -a -G audio builder
+
 ADD . /home/builder/
+
 RUN chown -R builder.builder /home/builder/
+
 USER builder
+
 RUN cd && \
     ./build_dep
+
 RUN cd && \
     tar czf /tmp/cpfs-os.tar.gz * && \
     mkdir -p rpmbuild/{SPECS,SOURCES} && \
