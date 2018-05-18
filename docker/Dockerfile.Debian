@@ -1,7 +1,9 @@
 FROM debian:stretch
-LABEL maintainer cpfs@clustertech.com
-RUN apt-get update && \
-    apt-get install -y \
+
+LABEL maintainer="cpfs@clustertech.com"
+
+RUN apt-get -y update && \
+    apt-get -y install \
       attr \
       cmake \
       dpkg-dev \
@@ -23,13 +25,22 @@ RUN apt-get update && \
       pkg-config \
       unzip \
       vim \
-      wget
+      wget && \
+    apt-get -qyy autoremove && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get -qyy clean
+
 RUN useradd -m builder && usermod -a -G audio builder
+
 ADD . /home/builder/
+
 RUN chown -R builder.builder /home/builder/
+
 USER builder
+
 RUN cd && \
     ./build_dep
+
 RUN cd && \
     mkdir build && \
     cd build && \
